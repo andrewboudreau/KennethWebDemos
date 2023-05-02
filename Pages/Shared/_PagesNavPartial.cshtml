@@ -1,0 +1,34 @@
+﻿@using System.Reflection
+@using Microsoft.AspNetCore.Mvc.RazorPages
+
+
+@{
+	var Pages = DiscoverRazorPages();
+	List<(string Path, string DisplayName)> DiscoverRazorPages()
+	{
+		var pageModelType = typeof(PageModel);
+		var assembly = Assembly.GetExecutingAssembly();
+
+		var razorPages = assembly.GetTypes()
+			.Where(t => pageModelType.IsAssignableFrom(t) && t != pageModelType)
+			.Select(t =>
+			{
+				var path = $"/{t.Name.Replace("Model", string.Empty)}";
+				var displayName = t.Name.Replace("Model", string.Empty);
+				return new { Path = path, DisplayName = displayName };
+			})
+			.Where(x => x.DisplayName != "Error" && x.DisplayName != "Privacy")
+			.ToList()
+			.Select(x => (x.Path, x.DisplayName))
+			.ToList();
+
+		return razorPages;
+	}
+}
+
+@foreach (var pageInfo in Pages)
+{
+	<li class="nav-item">
+		<a class="nav-link text-dark" href="@pageInfo.Path">@pageInfo.DisplayName</a>
+	</li>
+}

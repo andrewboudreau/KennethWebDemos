@@ -1,7 +1,76 @@
 ﻿@page
 @model FallingRainbowModel
 @{
-    ViewData["Title"] = "Falling Rainbows Demos";
+	ViewData["Title"] = "Falling Rainbows Demos";
 }
 
+@section Styles {
+	<style>
+		canvas {
+			display: block;
+			margin: 0 auto;
+			background-color: #f0f0f0;
+		}
+	</style>
+}
 
+<canvas id="canvas"></canvas>
+<script>
+	const canvas = document.getElementById('canvas');
+	const ctx = canvas.getContext('2d');
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+
+	class Circle {
+		constructor(x, y, radius, color, velocityY) {
+			this.x = x;
+			this.y = y;
+			this.radius = radius;
+			this.color = color;
+			this.velocityY = velocityY;
+		}
+
+		draw() {
+			ctx.beginPath();
+			ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+			ctx.fillStyle = this.color;
+			ctx.fill();
+			ctx.closePath();
+		}
+
+		update() {
+			this.y += this.velocityY;
+			this.draw();
+		}
+	}
+
+	function getRandomColor() {
+		const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'pink'];
+		return colors[Math.floor(Math.random() * colors.length)];
+	}
+
+	function getRandomInt(min, max) {
+		return Math.floor(Math.random() * (max - min + 1) + min);
+	}
+
+	let circles = [];
+
+	function animate() {
+		requestAnimationFrame(animate);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		circles.push(new Circle(
+			getRandomInt(0, canvas.width),
+			0,
+			getRandomInt(10, 30),
+			getRandomColor(),
+			getRandomInt(1, 4)
+		));
+
+		circles = circles.filter(circle => circle.y - circle.radius < canvas.height);
+
+		circles.forEach(circle => circle.update());
+	}
+
+	animate();
+</script>
